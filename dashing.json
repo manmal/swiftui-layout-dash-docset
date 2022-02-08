@@ -1,0 +1,15 @@
+{
+    "name": "SwiftUI Layout",
+    "package": "swiftui",
+    "index": "index.html",
+    "selectors": {
+        "h2": "Section",
+        "h3": "Type"
+    },
+    "ignore": [
+        "ABOUT"
+    ],
+    "icon32x32": "",
+    "allowJS": false,
+    "ExternalURL": ""
+}

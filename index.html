@@ -1,0 +1,1348 @@
+<head>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Understanding SwiftUI Layout Behaviors</h1>
+
+    <a href="http://defagos.github.io/understanding_swiftui_layout_behaviors/"
+      >Original Post by Samuel Defago</a
+    >
+    <p>
+      The SwiftUI layout system is more predictable and easier to understand
+      than UIKit layout system. But this does not mean how it works is entirely
+      straightforward.
+    </p>
+    <p>
+      For newcomers with no preconception of how layout historically worked on
+      Apple platforms, official documentation about the SwiftUI layout system
+      might namely be incomplete or
+      <a
+        href="https://developer.apple.com/documentation/SwiftUI/View/frame(minWidth:idealWidth:maxWidth:minHeight:idealHeight:maxHeight:alignment:)"
+        >obscure</a
+      >. The number of views and modifiers, as well as their various behaviors,
+      can be quite overwhelming. Even for seasoned UIKit developers it can be
+      difficult to figure out how SwiftUI layout system works, as its core
+      principles are quite different from UIKit well-known concepts of Auto
+      Layout constraints, springs and struts.
+    </p>
+    <p>
+      This article explores the essential rules and behaviors of the SwiftUI
+      layout system and explains how you should reason about it. It also
+      introduces a formalism that helps characterize views and their sizing
+      behaviors in general. It finally provides a list of the sizing behaviors
+      for most SwiftUI built-in views.
+    </p>
+    <h2>View Categories</h2>
+    <p>SwiftUI views all belong to either one of the following categories:</p>
+    <ul>
+      <li>
+        <strong>Simple views</strong> which do not take another view (or view
+        builder) as parameter, like <code>Text</code> or <code>Image</code>.
+      </li>
+      <li>
+        <strong>Composed views</strong> which take another view or a view
+        builder as parameter, like <code>VStack</code> or <code>Toggle</code>.
+      </li>
+    </ul>
+    <p>
+      Layouts themselves are simply created by assembling simple views and
+      composed views in arbitrarily complex hierarchies.
+    </p>
+    <h2>The SwiftUI Layout Process</h2>
+    <p>
+      When a parent must lay out one of its child views it proceeds in three
+      steps, very well explained in articles from
+      <a href="https://kean.blog/post/swiftui-layout-system">Alex Grebenyuk</a>
+      and
+      <a
+        href="https://www.hackingwithswift.com/books/ios-swiftui/how-layout-works-in-swiftui"
+        >Paul Hudson</a
+      >:
+    </p>
+    <ol>
+      <li>The parent offers some size to the child view.</li>
+      <li>
+        The child view decides the size it requires, eventualy taking into
+        account the parent size offer (a hint which the child is free to ignore
+        entirely). It then returns the size it requires to its parent.
+      </li>
+      <li>
+        The parent lays out the child somewhere, strictly respecting the size
+        that the child requested.
+      </li>
+    </ol>
+    <h3>Examples</h3>
+    <p>
+      Size offers and child view placements vary depending on the expected
+      result, for example:
+    </p>
+    <ul>
+      <li>
+        A <code>Painting</code> might draw some ostentatious painting frame
+        around its edges, and offers the rest to a single child view centered in
+        it.
+      </li>
+      <li>
+        A <code>Border</code> might offer its entire size to a single child view
+        and adds a 1-pixel border on top of it.
+      </li>
+      <li>
+        A <code>Plane</code> might be made of two coordinate axes, equally
+        offering a fourth of its size to four child views, each one drawn in a
+        quadrant. Child views are positioned in their respective quadrant with
+        different alignments (bottom left for the 1st, bottom right for the 2nd,
+        top right for the 3rd and top left for the 4th), so that one of their
+        corners coincides with the origin.
+      </li>
+    </ul>
+    <h2>Sizing Behaviors</h2>
+    <p>
+      During step 2 of the layout process children must decide the size they
+      need before communicating it to their parent. We call
+      <em>sizing behaviors</em>[^1] the various possibilities with which a view
+      can decide the size it needs. Note that views might have different sizing
+      behaviors in the horizontal and vertical directions. Knowing which sizing
+      behavior is adopted by a view and how it affects the layout process is
+      crucial in understanding how SwiftUI assigns sizes and positions to views.
+    </p>
+    <p>
+      Usually a view exhibits one of the two following concrete opposite sizing
+      behaviors:
+    </p>
+    <ul>
+      <li>
+        <strong>Expanding</strong> (exp): The view strives to match the size
+        offered by its parent.
+      </li>
+      <li>
+        <strong>Hugging</strong> (hug): The view chooses the best size to fit
+        its content without consulting the size offered by its parent.
+      </li>
+    </ul>
+    <p>
+      If a view is expanding in a single direction it must match the size
+      offered by its parent in this direction so that it can scale when the
+      parent does. But if a view expands in horizontal and vertical directions
+      at the same time it must only fulfill the size offered by its parent in at
+      least one direction.[^2] Child views are namely ultimately responsible of
+      deciding alone which size they want. If they are expanding in all
+      directions they must still match the size offered by their parent in at
+      least one direction (so that they can scale when the parent does), but
+      they remain free to choose the size in the other direction if they do not
+      want to stretch.[^3]
+    </p>
+    <p>
+      A third abstract behavior must be introduced for composed views, whose
+      behavior depend on their children behavior:
+    </p>
+    <ul>
+      <li>
+        <strong>Neutral</strong> (neu): The view adjusts its sizing behavior
+        based on the behaviors of its children, adopting hugging behavior if and
+        only if all its children have hugging behavior, otherwise expanding
+        behavior.
+      </li>
+    </ul>
+    <p>
+      These three sizing behaviors describe <em>intrinsic</em> properties of
+      views, which means they apply to views considered in isolation. In
+      concrete situations, though, views are part of a layout hierarchy. When a
+      view is part of a hierarchy only expanding and hugging behaviors
+      ultimately apply. Neutral behavior must therefore be seen a behavioral
+      placeholder for expanding or hugging behaviors, with no existence in
+      concrete hierarchies.
+    </p>
+    <p>
+      In the following we might sometimes use h-exp, v-exp, h-hug, v-hug, h-neu
+      and v-neu as shorthands for all possible intrinsic behaviors in horizontal
+      (h) and vertical (v) directions respectively.
+    </p>
+    <p>
+      [^1]: The term <em>sizing behavior</em> is informally encountered in
+      <a
+        href="https://developer.apple.com/documentation/SwiftUI/View/frame(minWidth:idealWidth:maxWidth:minHeight:idealHeight:maxHeight:alignment:)"
+        >Apple frame documentation</a
+      >. [^2]: This is why the definition of expanding behavior mentions that
+      the view <em>strives to match</em>, not that it
+      <em>exactly matches</em> the size offered by its parent. [^3]: This is for
+      example how the aspect ratio modifier works.
+    </p>
+    <h2>Decorator Views and Modifiers</h2>
+    <p>
+      Composed views containing a single child are special. They namely behave
+      like decorators, possibly altering or preserving the decorated view
+      behavior:
+    </p>
+    <ul>
+      <li>
+        A composed view with hugging behavior in some direction provides its
+        child with a fixed content proposal in this direction.
+      </li>
+      <li>
+        A composed view with expanding behavior in some direction provides its
+        child with the maximal content proposal it can afford in this direction.
+      </li>
+      <li>
+        A composed view with neutral behavior in some direction transparently
+        adopts the behavior of its child in the same direction.
+      </li>
+    </ul>
+    <p>
+      SwiftUI makes extensive use of decorators for defining modifiers. Each
+      modifier has an associated private composed view wrapper, returned as an
+      opaque type from the view modifier. Modifiers are therefore mostly
+      syntactic sugar and include iconic examples like
+      <code>View/frame(width:height:)</code> or
+      <code>View/aspectRatio(_:contentMode:)</code>.
+    </p>
+    <h2>Determining the Intrinsic Sizing Behavior of a View</h2>
+    <p>
+      You can probe the sizing behavior of a view to determine its intrinsic
+      sizing behavior, even if you don't have access to its implementation. The
+      procedure to follow depends on the category the view belongs to.
+    </p>
+    <h3>Probing Intrinsic Sizing Behavior for Simple Views</h3>
+    <p>
+      To determine the sizing behavior of a simple view use a sufficiently large
+      canvas, attach a border to the simple view, and observe where the border
+      is displayed:
+    </p>
+    <pre><code class="language-swift">struct SimpleView_Previews: PreviewProvider {
+    static var previews: some View {
+        SimpleView(...)
+            .border(Color.blue, width: 3)
+            .previewLayout(.fixed(width: 1000, height: 1000))
+    }
+}
+</code></pre>
+    <p>
+      If the border is close to the simple view for some direction it has
+      hugging behavior in this direction, otherwise expanding behavior.
+    </p>
+    <p>
+      With this method it can be verified that <code>Text</code> has hugging
+      behavior in all directions, while <code>Color</code> has expanding
+      behavior in all directions:
+    </p>
+    <p>
+      <img src="images/swiftui_layout_simple_view.jpg" alt="Simple view" />
+    </p>
+    <h3>Probing Intrinsic Sizing Behavior for Composed Views</h3>
+    <p>
+      To determine the behavior of a composed view use a sufficiently large
+      canvas, attach a border to the composed view, and observe where the border
+      is displayed when the composed view wraps an expanding child view,
+      respectively a hugging child view. <code>Text</code> and
+      <code>Color</code> are ideal child candidates as they let us probe both
+      horizontal and vertical behaviors at the same time:
+    </p>
+    <pre><code class="language-swift">struct ComposedView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            ComposedView(...) {
+                Color.red
+                    .border(Color.green, width: 3)
+            }
+            ComposedView(...) {
+                Text(&quot;Test&quot;)
+                    .border(Color.green, width: 3)
+            }
+        }
+        .border(Color.blue, width: 3)
+        .previewLayout(.fixed(width: 1000, height: 1000))
+    }
+}
+</code></pre>
+    <p>
+      If expanding, respectively hugging behavior is observed for the composed
+      view when its child is expanding, respectively hugging in some direction,
+      this means the composed view has neutral behavior in this direction, as it
+      adopts the behavior of its child.
+    </p>
+    <p>
+      If on the other hand the composed view ignores its child behavior for some
+      direction, then it must either have expanding or hugging behavior in this
+      direction. Simply apply the procedure for simple views to determine the
+      intrinsic composed view behavior in this case.
+    </p>
+    <p>
+      With this method it can be verified that a <code>Toggle</code> wrapping
+      some <code>View</code> label:
+    </p>
+    <pre><code class="language-swift">struct ComposedView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            Toggle(isOn: .constant(true)) {
+                Color.red
+                    .border(Color.green, width: 3)
+            }
+            Toggle(isOn: .constant(true)) {
+                Text(&quot;Option&quot;)
+                    .border(Color.green, width: 3)
+            }
+        }
+        .border(Color.blue, width: 3)
+        .previewLayout(.fixed(width: 1000, height: 1000))
+    }
+}
+</code></pre>
+    <p>has expanding behavior horizontally, but neutral behavior vertically:</p>
+    <p>
+      <img src="images/swiftui_layout_composed_view.jpg" alt="Composed view" />
+    </p>
+    <h3>Probing Modifiers</h3>
+    <p>
+      Modifiers return opaque composed views (as they are meant to augment the
+      view they are applied on). Probing a modifier is therefore achieved in the
+      same way as for composed views:
+    </p>
+    <pre><code class="language-swift">struct Modifier_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            Color.red
+            Text(&quot;Test&quot;)
+        }
+        .border(Color.green, width: 3)
+        .modifier(...)
+        .border(Color.blue, width: 3)
+        .previewLayout(.fixed(width: 1000, height: 1000))
+    }
+}
+</code></pre>
+    <p>
+      With this method it can be verified that applying the
+      <code>frame(maxWidth: .infinity)</code> modifier creates an expanding
+      horizontal frame with neutral vertical behavior:
+    </p>
+    <p>
+      <img
+        src="images/swiftui_layout_frame_modifier.jpg"
+        alt="Frame modifier"
+      />
+    </p>
+    <p>
+      Thoroughly probing the
+      <code
+        >View/frame(minWidth:idealWidth:maxWidth:minWeight:idealHeight:maxHeight:alignment:)</code
+      >
+      modifier is achieved by probing its behavior for other values of
+      <code>maxWidth</code> and <code>maxHeight</code>. The observed behavior is
+      characterized in the <a href="#view-taxonomy">View Taxonomy</a> section.
+    </p>
+    <h2>Ambiguous Layouts</h2>
+    <p>
+      One of the biggest advantages of SwiftUI over Auto Layout is the fact that
+      layouts can never break. Every seasoned UIKit developer has experienced
+      Auto Layout failing when layouts are over- or underdetermined, yielding
+      unpredictable results and logging horrendous messages to the console. This
+      never occurs with SwiftUI.
+    </p>
+    <p>
+      This does not mean that ambiguities do not exist in SwiftUI layouts,
+      though. When the SwiftUI layout engine encounters an ambiguity it simply
+      assigns a magical value of 10 to view dimensions it could not properly
+      determine. The layout succeeds and no issues are reported, though of
+      course the result obtained is not the expected one.
+    </p>
+    <p>
+      Such situations usually occur when a parent view wants to size itself
+      based on the size of its children, but those children exhibit expanding
+      behavior and thus want to match the parent size. This creates a
+      chicken-and-egg problem which SwiftUI solves by replacing undetermined
+      sizes with 10, as can be seen with the simple following code:
+    </p>
+    <pre><code class="language-swift">struct Undetermined_Size_Previews: PreviewProvider {
+    static var previews: some View {
+        Color.red
+            .fixedSize()
+    }
+}
+</code></pre>
+    <p>
+      Since <code>Color</code> has h-exp and v-exp behavior, the
+      <code>View/fixedSize()</code> modifier cannot figure out the intrinsic
+      size it needs to apply, using 10 as fallback in both directions.
+    </p>
+    <p>
+      Therefore, when you see some size of 10 popping somewhere in your layout
+      for unknown reasons, this usually means that a similar chicken-and-egg
+      problem exists with the involved view and its parent. Nothing will break
+      or throw an exception, but you should still have a look at why the problem
+      exists in the first place and lift the associated ambiguity, for example
+      by applying a frame modifier which will provide the child with a
+      well-defined size.
+    </p>
+    <h2>Sizing Behaviors in View Hierarchies</h2>
+    <p>
+      Layouts are created by assembling simple and composed views with various
+      sizing behaviors together. Associated with composed views only, the
+      neutral sizing behavior is a placeholder for expanding or hugging
+      behavior, though. Before you can understand how some layout works in
+      practice, you therefore must determine which behavior some neutral
+      behavior translates into, depending on the behavior of its children.
+    </p>
+    <p>
+      Finding the true nature of a neutral behavior is typically achieved in a
+      top-bottom / bottom-up fashion. Starting from a composed view with
+      undetermined neutral behavior you consider the behavior of its children,
+      recursively applying the same strategy when you encounter another view
+      with composed behavior. Once the behavior of all children contained in a
+      composed view is known the behavior of the parent view itself can be
+      determined.
+    </p>
+    <p>
+      This process might seem cumbersome but is thankfully theoretical in most
+      cases. As SwiftUI views are usually small reusable units for which the
+      behavior is known or can be quickly determined, the process above should
+      in practice only involve a brief look at the children of some composed
+      view to guess its overall behavior.
+    </p>
+    <p>
+      To speed up the process of identifying neutral behaviors, it might still
+      be useful to document custom views in your code so that their behavior can
+      be quickly guessed from their documentation, for example:
+    </p>
+    <pre><code class="language-swift">/// Intrinsic sizing behavior: h-exp, v-exp
+struct CalendarView: View {
+    // ...
+}
+
+/// Intrinsic sizing behavior: h-exp, v-hug
+struct SegmentedControl: View {
+    // ...
+}
+
+// Tag is a &quot;Dual-Category View&quot;, see corresponding paragraph in the View Taxonomy section
+struct Tag&lt;Label: View&gt;: View {
+    /// Intrinsic sizing behavior: h-neu, v-neu
+    init(@ViewBuilder label: @escaping () -&gt; Label) {
+        // ...
+    }
+
+    /// Intrinsic sizing behavior: h-hug, v-hug
+    init(_ titleKey: LocalizedStringKey) where Label == Text {
+        // ...
+    }
+}
+
+extension View {
+    /// Intrinsic sizing behavior: h-neu, v-neu
+    func ornatePictureFrame() -&gt; some View {
+        // ...
+    }
+}
+</code></pre>
+    <h2>Altering Sizing Behaviors</h2>
+    <p>
+      When the behavior of a SwiftUI view is not the one you want you cannot
+      alter its properties directly, as views themselves are value types and
+      thus immutable. Instead you wrap the view with unsatisfying behavior into
+      another one to obtain the desired behavior. This is usually achieved using
+      some public composed view (e.g. a stack) or by applying a modifier.
+    </p>
+    <p>
+      You can refer to the <a href="#view-taxonomy">View Taxonomy</a> section to
+      help you decide which modifier can be helpful to achieve the desired
+      behavior.
+    </p>
+    <h2>Layout Priorities</h2>
+    <p>
+      Layout priorities do not change the sizing behavior of a view. They merely
+      are used by composed parent views to decide which child they should
+      propose a size first.
+    </p>
+    <p>
+      For this reason this article will not further discuss layout priorities.
+      You can read the
+      <a
+        href="https://www.swiftbysundell.com/articles/swiftui-layout-system-guide-part-3/"
+        >dedicated article from John Sundell</a
+      >
+      to learn more about this topic.
+    </p>
+    <h2>Sizing SwiftUI Views</h2>
+    <p>
+      If you are wrapping SwiftUI views within UIKit you might be interested to
+      know which size a SwiftUI view requires, depending on the space it can be
+      provided. This can be helpful if the view contains a variable amount of
+      text and you want to provide a matching size to a collection layout in
+      advance, for example.
+    </p>
+    <p>
+      Fortunately <code>UIHostingController</code> provides a
+      <code>sizeThatFits(in:)</code> method to calculate the intrinsic size of a
+      view, which in facts apply the <code>UIView/sizeThatFits(:)</code> method
+      to its associated view.
+    </p>
+    <p>
+      Note that if your SwiftUI layout depends on size classes you should inject
+      the size class into the environment when calculating the size, so that the
+      view you probe adopts the correct behavior:
+    </p>
+    <pre><code class="language-swift">extension View {
+    func adaptiveSizeThatFits(in size: CGSize, for horizontalSizeClass: UIUserInterfaceSizeClass) -&gt; CGSize {
+        let hostController = UIHostingController(rootView: self.environment(\.horizontalSizeClass, UserInterfaceSizeClass(horizontalSizeClass)))
+        return hostController.sizeThatFits(in: size)
+    }
+}
+</code></pre>
+    <p>
+      You can use <code>UIView.layoutFittingExpandedSize</code> to calculate the
+      size required by some SwiftUI view. For example here is how you would
+      calculate the height of <code>SomeView</code> constrained to 800px
+      horizontally, for the regular size class:
+    </p>
+    <pre><code class="language-swift">let fittingSize = CGSize(width: 800, height: UIView.layoutFittingExpandedSize.height)
+let height = SomeView().adaptiveSizeThatFits(in: fittingSize, for: .regular).height
+</code></pre>
+    <p>
+      If <code>SomeView</code> has hugging behavior the matching height is
+      returned. If the view has expanding behavior, though, the returned height
+      will be equal to the size offer
+      <code>UIView.layoutFittingExpandedSize.height</code> instead.
+    </p>
+    <h4>Remark</h4>
+    <p>
+      Instead of the visual approach described
+      <a href="determining-the-intrinsic-sizing-behavior-of-a-biew">above</a>
+      you can use <code>UIHostingController</code> and
+      <code>sizeThatFits(in:)</code> to probe view sizing behavior. I like the
+      visual approach better but here is a rough idea how you can check that a
+      <code>VStack</code> has neutral behavior in all directions, using a Swift
+      playground:
+    </p>
+    <pre><code class="language-swift">struct ComposedViewExpandingTest: View {
+    var body: some View {
+        VStack {
+            Color.red
+        }
+    }
+}
+
+struct ComposedViewHuggingTest: View {
+    var body: some View {
+        VStack {
+            Text(&quot;Test&quot;)
+        }
+    }
+}
+
+extension View {
+    func probedSize() -&gt; CGSize {
+        let hostController = UIHostingController(rootView: self)
+        return hostController.sizeThatFits(in: UIView.layoutFittingExpandedSize)
+    }
+}
+
+let expandingSize = ComposedViewExpandingTest().probedSize()
+let huggingSize = ComposedViewHuggingTest().probedSize()
+
+let hNeutral = huggingSize.width != UIView.layoutFittingExpandedSize.width &amp;&amp; expandingSize.width == UIView.layoutFittingExpandedSize.width
+let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &amp;&amp; expandingSize.height == UIView.layoutFittingExpandedSize.height
+</code></pre>
+    <h2>UIViewRepresentable and UIViewControllerRepresentable</h2>
+    <p>
+      Special considerations are required when considering the sizing behavior
+      of views implemented with <code>UIViewRepresentable</code> or
+      <code>UIViewControllerRepresentable</code>. Such considerations are
+      outside the scope of this article and will be discussed in a separate
+      article.
+    </p>
+    <h2>Layout Advice</h2>
+    <p>
+      When creating layouts you should think about the sizing behavior of the
+      involved views and alter them as required, for example using frame
+      modifiers. You can refer to the
+      <a href="#view-taxonomy">View Taxonomy</a> at the end of this article to
+      guess the resulting behavior beforehand.
+    </p>
+    <p>To avoid messy layouts I recommend to:</p>
+    <ul>
+      <li>
+        Factor out view hierarchies into smaller views with documented sizing
+        behaviors.
+      </li>
+      <li>
+        Avoid geometry readers, which should be considered only if there are no
+        other possibilities to achieve what you want. View positioning can in
+        general be made in a much cleaner way using frame modifiers.
+      </li>
+      <li>
+        Avoid fixed <code>Spacer</code>s to insert spacings in stacks. In
+        general you can use paddings and nested stacks with proper spacing
+        settings to achieve a better result.
+      </li>
+    </ul>
+    <h2>TL;DR</h2>
+    <p>
+      SwiftUI introduces a robust layout system relying on size negociation
+      between parent and children views. Children ultimately choose the size
+      they want based on three possible intrisic sizing behaviors, expanding,
+      hugging and neutral, possibly different in horizontal and vertical
+      directions.
+    </p>
+    <p>
+      Views involved in a hierarchy effectively only exhibit expanding or
+      hugging behaviors, though. It is the responsibility of the layout system,
+      or yours when you create or inspect layouts, to identify how neutral
+      behaviors ultimately translate into expanding or hugging behaviors in a
+      hierarchy.
+    </p>
+    <p>
+      To quicker analyze view hiearchies and understand how adding a view to an
+      existing hierarchy might affect the overall result, it might prove helpful
+      to document custom views so that their intrinsic behavior can be quickly
+      read. While this process must be done for custom views, it can be done
+      <a href="#view-taxonomy">for SwiftUI built-in views</a> to offer an
+      overview of their respective behaviors.
+    </p>
+    <h2>View Taxonomy</h2>
+    <p>
+      The following taxonomy lists the intrinsic sizing behaviors of most
+      SwiftUI built-in views, and can be used as a reference when inspecting or
+      building layouts.
+    </p>
+    <p>
+      Each view was probed using one of the procedures outlined in this article.
+      Results were consolidated and presented in several tables, grouping views
+      with similar purposes.
+    </p>
+    <p>
+      Note that tables not only list behaviors of public view types like
+      <code>Text</code>, but also of opaque types returned by modifiers like
+      <code>Image/resizable(capInsets:resizingMode:)</code> or
+      <code>View/frame(width:height:)</code>.
+    </p>
+    <h3>Dual-Category Views</h3>
+    <p>
+      Some views can either be simple views or composed views depending on how
+      they are instantiated. You should be especially careful when using such
+      views, as simply adding a trailing closure to them might change a simple
+      view into a composed view with entirely different layout behaviors
+      (usually switching from hugging to neutral behavior).
+    </p>
+    <p>
+      Dual-category views include most notably <code>Label</code>,
+      <code>Link</code>, <code>ProgressView</code>, <code>Slider</code>,
+      <code>Stepper</code> and <code>Toggle</code>.
+    </p>
+    <h3>Simple Building Blocks</h3>
+    <p>
+      The following views are commonly used when building any kind of layout.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>Color</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>Divider</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>Image</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>Image</code> from
+            <code>resizable(capInsets:resizingMode:)</code> modifier
+          </td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>SecureField</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>Text</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>TextEditor</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>TextField</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Buttons</h3>
+    <p>
+      Button style can be controlled with the
+      <code>Button/buttonStyle(_:)</code> modifier, resulting in different
+      behaviors.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+          <th style="text-align: left">Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>Button</code> (default)</td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: left">
+            No style or <code>DefaultButtonStyle</code>. Corresponds to
+            <code>PlainButtonStyle</code> on iOS and to
+            <code>BorderedButtonStyle</code> on tvOS
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>Button</code> (plain)</td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: left">
+            <code>PlainButtonStyle</code>. No content insets are applied on tvOS
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>Button</code> (bordered, tvOS only)
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: left">
+            <code>BorderedButtonStyle</code>. Some content insets are applied
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>Button</code> (card, tvOS only)
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: left">
+            <code>CardButtonStyle</code>. ⚠️ This button calls
+            <code>View/fixedSize(horizontal:vertical:)</code> on its content
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Links</h3>
+    <p>
+      Links can be created with a title <code>String</code> or with a custom
+      label view.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>Link</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>Link</code> with <code>Label: View</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Labels</h3>
+    <p>
+      Labels can be created with a title <code>String</code> and an image /
+      system image, or with two custom views for the title and the icon.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>Label</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>Label</code> with <code>Title: View</code> and
+            <code>Icon: View</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Stacks</h3>
+    <p>
+      Stacks are essential components for horizontally and vertically arranging
+      views.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>HStack</code></td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>VStack</code></td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>ZStack</code></td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>LazyHStack</code></td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>LazyVStack</code></td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Note that lazy stacks have very different sizing behaviors from their
+      standard counterparts. You should therefore be especially careful when you
+      repalce a stack with its lazy counterpart, as this will change its sizing
+      behavior and will likely require some layout adjustments.
+    </p>
+    <h3>Sliders</h3>
+    <p>Sliders can be created with or without associated custom label view.</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+          <th style="text-align: left">Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>Slider</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: left"></td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>Slider</code> with <code>Label: View</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: left">
+            Label used only for accessibility; does not participate in the
+            layout
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Progress Views</h3>
+    <p>
+      Progress views can be created with or without associated custom label
+      view. Their style can be controlled with the
+      <code>View/progressViewStyle(_:)</code> modifier, resulting in different
+      behaviors.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+          <th style="text-align: left">Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>ProgressView</code> (linear)</td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: left">
+            No style, <code>DefaultProgressViewStyle</code> or
+            <code>LinearProgressViewStyle</code>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>ProgressView</code> (linear) with <code>Label: View</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: left">
+            No style, <code>DefaultProgressViewStyle</code> or
+            <code>LinearProgressViewStyle</code>. Label used only for
+            accessibility; does not participate in the layout
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>ProgressView</code> (circular)</td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: center">hug</td>
+          <td style="text-align: left">
+            <code>CircularProgressViewStyle</code>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>ProgressView</code> (circular) with <code>Label: View</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: left">
+            <code>CircularProgressViewStyle</code>. Label displayed underneath
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Steppers</h3>
+    <p>
+      Steppers can be created with a title <code>String</code>, or with a custom
+      view for the title.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>Stepper</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>Stepper</code> with <code>Label: View</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Toggles</h3>
+    <p>
+      Toggles can be created with a title <code>String</code>, or with a custom
+      view for the title.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>Toggle</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>Toggle</code> with <code>Label: View</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Shapes</h3>
+    <p>
+      Several built-in shapes are available. Custom shapes can be created by
+      implementing the <code>Shape</code> protocol. All have expanding behaviors
+      in all directions.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>Capsule</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>Circle</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>Ellipse</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>Rectangle</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>RoundedRectangle</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>Shape</code> (custom)</td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Spacers</h3>
+    <p>
+      Spacers are always flexible and work only within stacks. You can create a
+      fixed size spacer with the
+      <code>View/frame(width:height:)</code> modifier, though this is best
+      <a href="#layout-advice">avoided</a> in general.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>Spacer</code></td>
+          <td style="text-align: center">Simple</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Simple Frame</h3>
+    <p>
+      The <code>View/frame(width:height:alignment:)</code> modifier is used to
+      constrain space provided to its receiver in any or all directions.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">
+            <code>width</code> / <code>height</code> argument
+          </th>
+          <th style="text-align: center">
+            Obtained behavior in the horizontal / vertical direction
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left">Omitted</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">Finite value</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      If an argument is omitted for some direction the frame wrapper
+      transparently adopts the same behavior as the receiver in this direction.
+    </p>
+    <h3>Advanced Frame</h3>
+    <p>
+      The
+      <code
+        >View/frame(minWidth:idealWidth:maxWidth:minWeight:idealHeight:maxHeight:alignment:)</code
+      >
+      modifier is used to constrain space or create an invisible largest frame
+      in some direction, letting various alignments be applied for views drawn
+      in it.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: center">
+            <code>maxWidth</code> / <code>maxHeight</code> argument
+          </th>
+          <th style="text-align: center">
+            Obtained behavior in the horizontal / vertical direction
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center">Omitted</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">Finite value</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><code>.infinity</code></td>
+          <td style="text-align: center">exp</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      If an argument is omitted for some direction the frame wrapper
+      transparently adopts the same behavior as the receiver in this direction.
+    </p>
+    <p>
+      Note that only maximum arguments alter the sizing behavior of the frame.
+      Minimal and ideal arguments are only considered when the frame has hugging
+      behavior (finite maximum argument) to choose the best possible size.
+    </p>
+    <h3>Aspect Ratio</h3>
+    <p>
+      A view can be forced to a given aspect ratio with the
+      <code>View/aspectRatio(_:contentMode:)</code> modifier. This modifier does
+      not change the sizing behavior of the receiver, but if the receiver is
+      expanding in all directions it guarantees that it fit or fills the parent
+      view while the other direction is adjusted to satisfy the desired aspect
+      ratio and content mode.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left">
+            <code>View/aspectRatio(_:contentMode:)</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      The aspect ratio is an optional parameter. If omitted the intrinsic aspect
+      ratio of the receiver is used.
+    </p>
+    <h4>Remark</h4>
+    <p>
+      The intrinsic aspect ratio of the receiver is calculated from its
+      intrinsic dimensions. As discussed in the
+      <a href="#ambiguous-layouts">Ambiguous Layout</a> section, if some
+      intrinsic dimension of the receiver cannot be determined SwiftUI will
+      replace it with the magic value 10.
+    </p>
+    <h3>Fixed Size</h3>
+    <p>
+      A view can be forced to its intrinsic size with the
+      <code>View/fixedSize(horizontal:vertical:)</code> modifier in any
+      direction, adopting hugging behavior. If not the view behavior is
+      preserved in the corresponding direction.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">
+            <code>horizontal</code> / <code>vertical</code> argument
+          </th>
+          <th style="text-align: center">
+            Obtained behavior in the horizontal / vertical direction
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left">true</td>
+          <td style="text-align: center">hug</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">false</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      As discussed in the
+      <a href="#ambiguous-layouts">Ambiguous Layout</a> section, if some
+      intrinsic dimension of the receiver cannot be determined SwiftUI will
+      replace it with the magic value 10.
+    </p>
+    <h3>Common Decorators</h3>
+    <p>
+      These views adopt the behavior of the receiver in all directions and
+      decorate it.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>View/border(_:width:)</code></td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>View/background(_:alignment:)</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>View/overlay(_:alignment:)</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+        <tr>
+          <td style="text-align: left">
+            <code>View/offset(_:)</code> and <code>View/offset(x:y:)</code>
+          </td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Special Views</h3>
+    <p>The following are special views for positioning and grouping.</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Type</th>
+          <th style="text-align: center">Category</th>
+          <th style="text-align: center">Horizontal</th>
+          <th style="text-align: center">Vertical</th>
+          <th style="text-align: left">Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code>GeometryReader</code></td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: center">exp</td>
+          <td style="text-align: left">
+            Takes the whole size offered by its parent. Its
+            <code>geometryProxy</code> parameter can be used for precise
+            children placement within the associated region. If a child is not
+            provided with a frame the geometry reader simply places it at the
+            top left
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code>Group</code></td>
+          <td style="text-align: center">Composed</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: center">neu</td>
+          <td style="text-align: left"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
