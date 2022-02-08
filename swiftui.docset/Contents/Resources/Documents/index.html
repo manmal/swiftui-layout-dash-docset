@@ -28,7 +28,7 @@
       behaviors in general. It finally provides a list of the sizing behaviors
       for most SwiftUI built-in views.
     </p>
-    <a class="dashingAutolink" name="autolink-2"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/View%20Categories"></a><h2>View Categories</h2>
+    <a class="dashingAutolink" name="autolink-22"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/View%20Categories"></a><h2>View Categories</h2>
     <p>SwiftUI views all belong to either one of the following categories:</p>
     <ul>
       <li>
@@ -44,7 +44,7 @@
       Layouts themselves are simply created by assembling simple views and
       composed views in arbitrarily complex hierarchies.
     </p>
-    <a class="dashingAutolink" name="autolink-3"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/The%20SwiftUI%20Layout%20Process"></a><h2>The SwiftUI Layout Process</h2>
+    <a class="dashingAutolink" name="autolink-23"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/The%20SwiftUI%20Layout%20Process"></a><h2>The SwiftUI Layout Process</h2>
     <p>
       When a parent must lay out one of its child views it proceeds in three
       steps, very well explained in articles from
@@ -64,7 +64,7 @@
         that the child requested.
       </li>
     </ol>
-    <a class="dashingAutolink" name="autolink-16"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Examples"></a><h3>Examples</h3>
+    <a class="dashingAutolink" name="autolink-0"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Examples"></a><h3>Examples</h3>
     <p>
       Size offers and child view placements vary depending on the expected
       result, for example:
@@ -88,7 +88,7 @@
         corners coincides with the origin.
       </li>
     </ul>
-    <a class="dashingAutolink" name="autolink-4"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Sizing%20Behaviors"></a><h2>Sizing Behaviors</h2>
+    <a class="dashingAutolink" name="autolink-24"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Sizing%20Behaviors"></a><h2>Sizing Behaviors</h2>
     <p>
       During step 2 of the layout process children must decide the size they
       need before communicating it to their parent. We call
@@ -157,7 +157,7 @@
       <em>exactly matches</em> the size offered by its parent. [^3]: This is for
       example how the aspect ratio modifier works.
     </p>
-    <a class="dashingAutolink" name="autolink-5"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Decorator%20Views%20and%20Modifiers"></a><h2>Decorator Views and Modifiers</h2>
+    <a class="dashingAutolink" name="autolink-25"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Decorator%20Views%20and%20Modifiers"></a><h2>Decorator Views and Modifiers</h2>
     <p>
       Composed views containing a single child are special. They namely behave
       like decorators, possibly altering or preserving the decorated view
@@ -185,13 +185,13 @@
       <code>View/frame(width:height:)</code> or
       <code>View/aspectRatio(_:contentMode:)</code>.
     </p>
-    <a class="dashingAutolink" name="autolink-6"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Determining%20the%20Intrinsic%20Sizing%20Behavior%20of%20a%20View"></a><h2>Determining the Intrinsic Sizing Behavior of a View</h2>
+    <a class="dashingAutolink" name="autolink-26"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Determining%20the%20Intrinsic%20Sizing%20Behavior%20of%20a%20View"></a><h2>Determining the Intrinsic Sizing Behavior of a View</h2>
     <p>
       You can probe the sizing behavior of a view to determine its intrinsic
       sizing behavior, even if you don&#39;t have access to its implementation. The
       procedure to follow depends on the category the view belongs to.
     </p>
-    <a class="dashingAutolink" name="autolink-17"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Probing%20Intrinsic%20Sizing%20Behavior%20for%20Simple%20Views"></a><h3>Probing Intrinsic Sizing Behavior for Simple Views</h3>
+    <a class="dashingAutolink" name="autolink-1"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Probing%20Intrinsic%20Sizing%20Behavior%20for%20Simple%20Views"></a><h3>Probing Intrinsic Sizing Behavior for Simple Views</h3>
     <p>
       To determine the sizing behavior of a simple view use a sufficiently large
       canvas, attach a border to the simple view, and observe where the border
@@ -217,7 +217,7 @@
     <p>
       <img src="images/swiftui_layout_simple_view.jpg" alt="Simple view"/>
     </p>
-    <a class="dashingAutolink" name="autolink-18"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Probing%20Intrinsic%20Sizing%20Behavior%20for%20Composed%20Views"></a><h3>Probing Intrinsic Sizing Behavior for Composed Views</h3>
+    <a class="dashingAutolink" name="autolink-2"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Probing%20Intrinsic%20Sizing%20Behavior%20for%20Composed%20Views"></a><h3>Probing Intrinsic Sizing Behavior for Composed Views</h3>
     <p>
       To determine the behavior of a composed view use a sufficiently large
       canvas, attach a border to the composed view, and observe where the border
@@ -280,7 +280,7 @@
     <p>
       <img src="images/swiftui_layout_composed_view.jpg" alt="Composed view"/>
     </p>
-    <a class="dashingAutolink" name="autolink-19"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Probing%20Modifiers"></a><h3>Probing Modifiers</h3>
+    <a class="dashingAutolink" name="autolink-3"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Probing%20Modifiers"></a><h3>Probing Modifiers</h3>
     <p>
       Modifiers return opaque composed views (as they are meant to augment the
       view they are applied on). Probing a modifier is therefore achieved in the
@@ -314,7 +314,7 @@
       <code>maxWidth</code> and <code>maxHeight</code>. The observed behavior is
       characterized in the <a href="#view-taxonomy">View Taxonomy</a> section.
     </p>
-    <a class="dashingAutolink" name="autolink-7"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Ambiguous%20Layouts"></a><h2>Ambiguous Layouts</h2>
+    <a class="dashingAutolink" name="autolink-27"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Ambiguous%20Layouts"></a><h2>Ambiguous Layouts</h2>
     <p>
       One of the biggest advantages of SwiftUI over Auto Layout is the fact that
       layouts can never break. Every seasoned UIKit developer has experienced
@@ -357,7 +357,7 @@
       by applying a frame modifier which will provide the child with a
       well-defined size.
     </p>
-    <a class="dashingAutolink" name="autolink-8"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Sizing%20Behaviors%20in%20View%20Hierarchies"></a><h2>Sizing Behaviors in View Hierarchies</h2>
+    <a class="dashingAutolink" name="autolink-28"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Sizing%20Behaviors%20in%20View%20Hierarchies"></a><h2>Sizing Behaviors in View Hierarchies</h2>
     <p>
       Layouts are created by assembling simple and composed views with various
       sizing behaviors together. Associated with composed views only, the
@@ -417,7 +417,7 @@ extension View {
     }
 }
 </code></pre>
-    <a class="dashingAutolink" name="autolink-9"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Altering%20Sizing%20Behaviors"></a><h2>Altering Sizing Behaviors</h2>
+    <a class="dashingAutolink" name="autolink-29"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Altering%20Sizing%20Behaviors"></a><h2>Altering Sizing Behaviors</h2>
     <p>
       When the behavior of a SwiftUI view is not the one you want you cannot
       alter its properties directly, as views themselves are value types and
@@ -430,7 +430,7 @@ extension View {
       help you decide which modifier can be helpful to achieve the desired
       behavior.
     </p>
-    <a class="dashingAutolink" name="autolink-10"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Layout%20Priorities"></a><h2>Layout Priorities</h2>
+    <a class="dashingAutolink" name="autolink-30"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Layout%20Priorities"></a><h2>Layout Priorities</h2>
     <p>
       Layout priorities do not change the sizing behavior of a view. They merely
       are used by composed parent views to decide which child they should
@@ -442,7 +442,7 @@ extension View {
       <a href="https://www.swiftbysundell.com/articles/swiftui-layout-system-guide-part-3/">dedicated article from John Sundell</a>
       to learn more about this topic.
     </p>
-    <a class="dashingAutolink" name="autolink-11"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Sizing%20SwiftUI%20Views"></a><h2>Sizing SwiftUI Views</h2>
+    <a class="dashingAutolink" name="autolink-31"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Sizing%20SwiftUI%20Views"></a><h2>Sizing SwiftUI Views</h2>
     <p>
       If you are wrapping SwiftUI views within UIKit you might be interested to
       know which size a SwiftUI view requires, depending on the space it can be
@@ -522,7 +522,7 @@ let huggingSize = ComposedViewHuggingTest().probedSize()
 let hNeutral = huggingSize.width != UIView.layoutFittingExpandedSize.width &amp;&amp; expandingSize.width == UIView.layoutFittingExpandedSize.width
 let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &amp;&amp; expandingSize.height == UIView.layoutFittingExpandedSize.height
 </code></pre>
-    <a class="dashingAutolink" name="autolink-12"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/UIViewRepresentable%20and%20UIViewControllerRepresentable"></a><h2>UIViewRepresentable and UIViewControllerRepresentable</h2>
+    <a class="dashingAutolink" name="autolink-32"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/UIViewRepresentable%20and%20UIViewControllerRepresentable"></a><h2>UIViewRepresentable and UIViewControllerRepresentable</h2>
     <p>
       Special considerations are required when considering the sizing behavior
       of views implemented with <code>UIViewRepresentable</code> or
@@ -530,7 +530,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
       outside the scope of this article and will be discussed in a separate
       article.
     </p>
-    <a class="dashingAutolink" name="autolink-13"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Layout%20Advice"></a><h2>Layout Advice</h2>
+    <a class="dashingAutolink" name="autolink-33"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/Layout%20Advice"></a><h2>Layout Advice</h2>
     <p>
       When creating layouts you should think about the sizing behavior of the
       involved views and alter them as required, for example using frame
@@ -555,7 +555,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         settings to achieve a better result.
       </li>
     </ul>
-    <a class="dashingAutolink" name="autolink-14"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/TL%3BDR"></a><h2>TL;DR</h2>
+    <a class="dashingAutolink" name="autolink-34"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/TL%3BDR"></a><h2>TL;DR</h2>
     <p>
       SwiftUI introduces a robust layout system relying on size negociation
       between parent and children views. Children ultimately choose the size
@@ -578,7 +578,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
       <a href="#view-taxonomy">for SwiftUI built-in views</a> to offer an
       overview of their respective behaviors.
     </p>
-    <a class="dashingAutolink" name="autolink-15"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/View%20Taxonomy"></a><h2>View Taxonomy</h2>
+    <a class="dashingAutolink" name="autolink-35"></a><a class="dashAnchor" name="//apple_ref/cpp/Section/View%20Taxonomy"></a><h2>View Taxonomy</h2>
     <p>
       The following taxonomy lists the intrinsic sizing behaviors of most
       SwiftUI built-in views, and can be used as a reference when inspecting or
@@ -595,7 +595,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
       <code>Image/resizable(capInsets:resizingMode:)</code> or
       <code>View/frame(width:height:)</code>.
     </p>
-    <a class="dashingAutolink" name="autolink-20"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Dual-Category%20Views"></a><h3>Dual-Category Views</h3>
+    <a class="dashingAutolink" name="autolink-4"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Dual-Category%20Views"></a><h3>Dual-Category Views</h3>
     <p>
       Some views can either be simple views or composed views depending on how
       they are instantiated. You should be especially careful when using such
@@ -608,7 +608,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
       <code>Link</code>, <code>ProgressView</code>, <code>Slider</code>,
       <code>Stepper</code> and <code>Toggle</code>.
     </p>
-    <a class="dashingAutolink" name="autolink-21"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Simple%20Building%20Blocks"></a><h3>Simple Building Blocks</h3>
+    <a class="dashingAutolink" name="autolink-5"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Simple%20Building%20Blocks"></a><h3>Simple Building Blocks</h3>
     <p>
       The following views are commonly used when building any kind of layout.
     </p>
@@ -675,7 +675,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-22"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Buttons"></a><h3>Buttons</h3>
+    <a class="dashingAutolink" name="autolink-6"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Buttons"></a><h3>Buttons</h3>
     <p>
       Button style can be controlled with the
       <code>Button/buttonStyle(_:)</code> modifier, resulting in different
@@ -737,7 +737,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-23"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Links"></a><h3>Links</h3>
+    <a class="dashingAutolink" name="autolink-7"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Links"></a><h3>Links</h3>
     <p>
       Links can be created with a title <code>String</code> or with a custom
       label view.
@@ -768,7 +768,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-24"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Labels"></a><h3>Labels</h3>
+    <a class="dashingAutolink" name="autolink-8"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Labels"></a><h3>Labels</h3>
     <p>
       Labels can be created with a title <code>String</code> and an image /
       system image, or with two custom views for the title and the icon.
@@ -800,7 +800,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-25"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Stacks"></a><h3>Stacks</h3>
+    <a class="dashingAutolink" name="autolink-9"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Stacks"></a><h3>Stacks</h3>
     <p>
       Stacks are essential components for horizontally and vertically arranging
       views.
@@ -853,7 +853,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
       repalce a stack with its lazy counterpart, as this will change its sizing
       behavior and will likely require some layout adjustments.
     </p>
-    <a class="dashingAutolink" name="autolink-26"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Sliders"></a><h3>Sliders</h3>
+    <a class="dashingAutolink" name="autolink-10"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Sliders"></a><h3>Sliders</h3>
     <p>Sliders can be created with or without associated custom label view.</p>
     <table>
       <thead>
@@ -887,7 +887,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-27"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Progress%20Views"></a><h3>Progress Views</h3>
+    <a class="dashingAutolink" name="autolink-11"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Progress%20Views"></a><h3>Progress Views</h3>
     <p>
       Progress views can be created with or without associated custom label
       view. Their style can be controlled with the
@@ -950,7 +950,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-28"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Steppers"></a><h3>Steppers</h3>
+    <a class="dashingAutolink" name="autolink-12"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Steppers"></a><h3>Steppers</h3>
     <p>
       Steppers can be created with a title <code>String</code>, or with a custom
       view for the title.
@@ -981,7 +981,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-29"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Toggles"></a><h3>Toggles</h3>
+    <a class="dashingAutolink" name="autolink-13"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Toggles"></a><h3>Toggles</h3>
     <p>
       Toggles can be created with a title <code>String</code>, or with a custom
       view for the title.
@@ -1012,7 +1012,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-30"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Shapes"></a><h3>Shapes</h3>
+    <a class="dashingAutolink" name="autolink-14"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Shapes"></a><h3>Shapes</h3>
     <p>
       Several built-in shapes are available. Custom shapes can be created by
       implementing the <code>Shape</code> protocol. All have expanding behaviors
@@ -1066,7 +1066,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-31"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Spacers"></a><h3>Spacers</h3>
+    <a class="dashingAutolink" name="autolink-15"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Spacers"></a><h3>Spacers</h3>
     <p>
       Spacers are always flexible and work only within stacks. You can create a
       fixed size spacer with the
@@ -1091,7 +1091,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-32"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Simple%20Frame"></a><h3>Simple Frame</h3>
+    <a class="dashingAutolink" name="autolink-16"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Simple%20Frame"></a><h3>Simple Frame</h3>
     <p>
       The <code>View/frame(width:height:alignment:)</code> modifier is used to
       constrain space provided to its receiver in any or all directions.
@@ -1122,7 +1122,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
       If an argument is omitted for some direction the frame wrapper
       transparently adopts the same behavior as the receiver in this direction.
     </p>
-    <a class="dashingAutolink" name="autolink-33"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Advanced%20Frame"></a><h3>Advanced Frame</h3>
+    <a class="dashingAutolink" name="autolink-17"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Advanced%20Frame"></a><h3>Advanced Frame</h3>
     <p>
       The
       <code>View/frame(minWidth:idealWidth:maxWidth:minWeight:idealHeight:maxHeight:alignment:)</code>
@@ -1165,7 +1165,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
       Minimal and ideal arguments are only considered when the frame has hugging
       behavior (finite maximum argument) to choose the best possible size.
     </p>
-    <a class="dashingAutolink" name="autolink-34"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Aspect%20Ratio"></a><h3>Aspect Ratio</h3>
+    <a class="dashingAutolink" name="autolink-18"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Aspect%20Ratio"></a><h3>Aspect Ratio</h3>
     <p>
       A view can be forced to a given aspect ratio with the
       <code>View/aspectRatio(_:contentMode:)</code> modifier. This modifier does
@@ -1206,7 +1206,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
       intrinsic dimension of the receiver cannot be determined SwiftUI will
       replace it with the magic value 10.
     </p>
-    <a class="dashingAutolink" name="autolink-35"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Fixed%20Size"></a><h3>Fixed Size</h3>
+    <a class="dashingAutolink" name="autolink-19"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Fixed%20Size"></a><h3>Fixed Size</h3>
     <p>
       A view can be forced to its intrinsic size with the
       <code>View/fixedSize(horizontal:vertical:)</code> modifier in any
@@ -1241,7 +1241,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
       intrinsic dimension of the receiver cannot be determined SwiftUI will
       replace it with the magic value 10.
     </p>
-    <a class="dashingAutolink" name="autolink-36"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Common%20Decorators"></a><h3>Common Decorators</h3>
+    <a class="dashingAutolink" name="autolink-20"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Common%20Decorators"></a><h3>Common Decorators</h3>
     <p>
       These views adopt the behavior of the receiver in all directions and
       decorate it.
@@ -1288,7 +1288,7 @@ let vNeutral = huggingSize.height != UIView.layoutFittingExpandedSize.height &am
         </tr>
       </tbody>
     </table>
-    <a class="dashingAutolink" name="autolink-37"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Special%20Views"></a><h3>Special Views</h3>
+    <a class="dashingAutolink" name="autolink-21"></a><a class="dashAnchor" name="//apple_ref/cpp/Type/Special%20Views"></a><h3>Special Views</h3>
     <p>The following are special views for positioning and grouping.</p>
     <table>
       <thead>

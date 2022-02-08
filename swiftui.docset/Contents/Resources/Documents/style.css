@@ -1,93 +1,3 @@
-.highlight {
-}
-
-.highlight table td {
-  padding: 5px;
-}
-
-.highlight table pre {
-  margin: 0;
-}
-
-.highlight .c,
-.highlight .cd,
-.highlight .cm,
-.highlight .c1,
-.highlight .cs {
-}
-
-.highlight .cp {
-}
-
-.highlight .o,
-.highlight .ow {
-}
-
-.highlight .p,
-.highlight .pi {
-}
-
-.highlight .gi {
-}
-
-.highlight .gd {
-}
-
-.highlight .gh {
-  font-weight: bold;
-}
-
-.highlight .k,
-.highlight .kn,
-.highlight .kp,
-.highlight .kr,
-.highlight .kv {
-}
-
-.highlight .kc,
-.highlight .kt,
-.highlight .kd {
-}
-
-.highlight .s,
-.highlight .sb,
-.highlight .sc,
-.highlight .sd,
-.highlight .s2,
-.highlight .sh,
-.highlight .sx,
-.highlight .s1 {
-}
-
-.highlight .sr {
-}
-
-.highlight .si,
-.highlight .se {
-}
-
-.highlight .nt,
-.highlight .nn,
-.highlight .nc,
-.highlight .no {
-}
-
-.highlight .na {
-}
-
-.highlight .m,
-.highlight .mf,
-.highlight .mh,
-.highlight .mi,
-.highlight .il,
-.highlight .mo,
-.highlight .mb,
-.highlight .mx {
-}
-
-.highlight .ss {
-}
-
 body {
   margin: 0;
   padding: 0;
@@ -327,7 +237,24 @@ body {
 }
 
 code {
-  font-size: 1.4em;
+  font-size: 1em;
+  padding: 0px 3px;
+  margin: 0px 2px;
+  border: 1px solid gray;
+  border-radius: 3px;
+}
+
+pre code {
+  border: none;
+  padding: none;
+  margin: none;
+  font-size: 1.3em;
+}
+
+table code {
+  font-size: 1.2em;
+  border: none;
+  font-weight: bold;
 }
 
 ul li {
